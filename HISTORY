@@ -1,5 +1,21 @@
-=== MetricFu 0.8.1 / 2008-11-19
-Updated coverage rake task to specify test in the libs param.  This fixes problems in tests generated under Rails 2.1.
+=== MetricFu 0.9.0 / 2009-1-25
+
+* Adding line numbers to the views so that people viewing it on cc.rb can figure out where the problems are
+* Merging in changes from Jay Zeschin having to do with the railroad task -- I still have no idea how to use it (lemme know if you figure it out)
+* Added totals to Flog results
+* Moved rcov options to configuration
+
+=== MetricFu 0.8.9 / 2009-1-20
+
+* Thanks to Andre Arko and Petrik de Heus for adding the following features:
+* The source control type is auto-detected for Churn
+* Moved all presentation to templates
+* Wrote specs for all classes
+* Added flay, Reek and Roodi metrics
+* There's now a configuration class (see README for details)
+* Unification of metrics reports
+* Metrics can be generated using one command
+* Adding new metrics reports has been standardized
 
 === MetricFu 0.8.0 / 2008-10-06
 

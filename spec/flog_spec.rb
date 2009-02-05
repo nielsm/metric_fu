@@ -45,6 +45,67 @@ BM
          1.1: entryRelationship
 IM
 
+    @assignment_method = <<-MTHD
+    Total Flog = 21.6 (5.4 +/- 3.3 flog / method)
+
+    ActivityReport#existing_measure_attributes=: (8.5)
+         4.1: assignment
+         1.8: id
+         1.6: to_s
+         1.4: []
+         1.4: activity_report_measures
+         1.2: each
+         1.2: branch
+    MTHD
+
+    @class_methods_grouped_together = <<-MTHD
+    Total Flog = 61.8 (7.7 +/- 95.3 flog / method)
+
+    User#none: (32.8)
+         7.2: include
+         3.6: validates_length_of
+         3.6: validates_format_of
+         2.4: validates_presence_of
+         2.4: validates_uniqueness_of
+         1.4: bad_login_message
+         1.4: name_regex
+         1.4: bad_email_message
+         1.4: bad_name_message
+         1.4: login_regex
+         1.4: email_regex
+         1.2: private
+         1.2: has_and_belongs_to_many
+         1.2: before_create
+         1.2: attr_accessible
+         0.4: lit_fixnum
+    MTHD
+  end
+  
+  it "should be able to parse class_methods_grouped_together" do
+    page = Base.parse(@class_methods_grouped_together)
+    page.should_not be_nil
+    page.score.should == 61.8
+    page.scanned_methods.size.should == 1
+    sm = page.scanned_methods.first
+    sm.name.should == 'User#none'
+    sm.score.should == 32.8
+    
+    sm.operators.size.should == 16
+    sm.operators.first.score.should == 7.2
+    sm.operators.first.operator.should == "include"
+    
+    sm.operators.last.score.should == 0.4
+    sm.operators.last.operator.should == "lit_fixnum"
+  end
+  
+  it "should be able to parse an assignment method" do
+    page = Base.parse(@assignment_method)
+    page.should_not be_nil
+    page.score.should == 21.6
+    page.scanned_methods.size.should == 1
+    sm = page.scanned_methods.first
+    sm.name.should == 'ActivityReport#existing_measure_attributes='
+    sm.score.should == 8.5
   end
 
   it "should be able to parse an alpha only method" do
@@ -92,11 +153,11 @@ IM = <<-IM
          1.2: act
          1.1: entryRelationship
 IM
-describe MetricFu::Flog::Generator do
+describe MetricFu::Flog do
 
   describe "generate_report" do
     it "should generate reports" do
-      generator = Generator.new('other_dir')
+      generator = Flog::Generator.new('other_dir')
       generator.should_receive(:flog_results).and_return(['A', 'B'])
       generator.should_receive(:save_html).at_least(3).times.and_return('')
       generator.should_receive(:open).any_number_of_times.and_return(['Total Flog = 1273.9 (9.3 +/- 259.2 flog / method)', 'TokenCounter#list_tokens_per_line: (15.2)', '9.0: assignment'].join("\n"))
@@ -104,7 +165,7 @@ describe MetricFu::Flog::Generator do
     end
     
     it "should be able to handle InvalidFlogs" do
-      generator = Generator.new('other_dir')
+      generator = Flog::Generator.new('other_dir')
       generator.should_receive(:flog_results).and_return(['A', 'B'])
       generator.should_receive(:inline_css).any_number_of_times.and_return('')
       generator.should_receive(:save_html).once
@@ -115,8 +176,8 @@ describe MetricFu::Flog::Generator do
   
   describe "template_name" do
     it "should return the class name in lowercase" do
-      flog = Generator.new('base_dir')      
-      flog.template_name.should == 'flog'
+      flog = Flog::Generator.new('base_dir')      
+      Flog::Generator.template_name.should == 'flog'
     end
   end  
 end
