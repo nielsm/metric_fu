@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "metric_fu" 
-  s.version = "0.9.0" 
+  s.version = "0.9.1" 
   s.summary = "A fistful of code metrics"
   s.email = "jake.scruggs@gmail.com"
   s.homepage = "http://metric-fu.rubyforge.org/"
@@ -65,4 +65,5 @@ Gem::Specification.new do |s|
   s.add_dependency("railroad", [">= 0.5.0"])  
   s.add_dependency("reek", ["> 0.0.0"])
   s.add_dependency("roodi", ["> 0.0.0"])
+  s.add_dependency("rspec", ["> 0.0.0"])
 end
