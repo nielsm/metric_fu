@@ -30,53 +30,6 @@ describe MetricFu::Configuration do
     @config.instance_variable_get(:@metric_fu_root_directory)
   end
 
-  describe '#warn_about_deprecated_config_options' do
-
-    def get_new_config_and_raise_runtime_error
-      lambda { get_new_config  }.should raise_error
-    end
-
-    describe 'when ::MetricFu::CHURN_OPTIONS is present' do
-      before(:each) { ::MetricFu::CHURN_OPTIONS = 'option' }
-      after(:each)  { ::MetricFu.send(:remove_const, 'CHURN_OPTIONS') }
-      
-      it 'should raise a RuntimeError with "Use config.churn '+ 
-      'instead of MetricFu::CHURN_OPTIONS"' do
-        get_new_config_and_raise_runtime_error
-      end
-    end
-    
-    describe 'when ::MetricFu::DIRECTORIES_TO_FLOG is present' do
-      before(:each) { ::MetricFu::DIRECTORIES_TO_FLOG = 'option' }
-      after(:each)  { ::MetricFu.send(:remove_const,'DIRECTORIES_TO_FLOG')}
-
-      it 'should raise a RuntimeError with "Use config.flog '+
-      '[:dirs_to_flog] instead of MetricFu::DIRECTORIES_TO_FLOG' do
-        get_new_config_and_raise_runtime_error
-      end 
-    end
-
-    describe 'when ::MetricFu::SAIKURO_OPTIONS is present' do
-      before(:each) { ::MetricFu::SAIKURO_OPTIONS = 'option' }
-      after(:each)  { ::MetricFu.send(:remove_const,'SAIKURO_OPTIONS')}
-      
-      it 'should raise a RuntimeError with "Use config.saikuro '+
-      'instead of MetricFu::SAIKURO_OPTIONS' do 
-        get_new_config_and_raise_runtime_error
-      end
-    end
-
-    describe 'when SAIKURO_OPTIONS is present' do
-      before(:each) { SAIKURO_OPTIONS = 'option' }
-      after(:each)  { Object.send(:remove_const,'SAIKURO_OPTIONS')}
-      
-      it 'should raise a RuntimeError with "Use config.saikuro '+
-      'instead of SAIKURO_OPTIONS' do
-        get_new_config_and_raise_runtime_error
-      end
-    end
-  end
-
   describe "#reset" do
     
     before(:each) { get_new_config } 
@@ -128,13 +81,13 @@ describe MetricFu::Configuration do
       output_directory.should == output_dir
     end
     
-    it 'should set @template_class to StandardTemplate' do
+    it 'should set @template_class to AwesomeTemplate' do
       template_class.should == AwesomeTemplate
     end
 
     it 'should set @flay to {:dirs_to_flay => @code_dirs}' do
       @config.instance_variable_get(:@flay).
-              should == {:dirs_to_flay => ['lib']}
+              should == {:dirs_to_flay => ['lib'], :minimum_score => 100}
     end
     
     it 'should set @flog to {:dirs_to_flog => @code_dirs}' do
@@ -172,7 +125,8 @@ describe MetricFu::Configuration do
                                               "--rails",           
                                               "--exclude /gems/,/Library/,/usr/,spec"]}' do
       @config.instance_variable_get(:@rcov).
-              should ==  { :test_files => ['test/**/*_test.rb', 
+              should ==  { :environment => 'test',
+                           :test_files => ['test/**/*_test.rb', 
                                            'spec/**/*_spec.rb'],
                            :rcov_opts => ["--sort coverage", 
                                          "--no-html", 
@@ -191,7 +145,7 @@ describe MetricFu::Configuration do
                                  :error_cyclo => "7",
                                  :formater => "text" }' do
       @config.instance_variable_get(:@saikuro).
-              should ==  { :output_directory => 'tmp/metric_fu/scratch/saikuro', 
+              should ==  { :output_directory => "#{scratch_directory}/saikuro", 
                     :input_directory => ['lib'],
                     :cyclo => "",
                     :filter_cyclo => "0",
@@ -199,7 +153,7 @@ describe MetricFu::Configuration do
                     :error_cyclo => "7",
                     :formater => "text"}
     end
-
+    
     describe 'if #rails? is true ' do
       before(:each) do
         @config.stub!(:rails?).and_return(true)
@@ -210,6 +164,13 @@ describe MetricFu::Configuration do
            +'[:stats]' do
           @config.instance_variable_get(:@metrics).
                   should == MetricFu::AVAILABLE_METRICS << [:stats]
+        end
+      end
+
+      describe '#set_graphs ' do
+        it 'should set the @graphs instance var to AVAILABLE_GRAPHS' do
+          @config.instance_variable_get(:@graphs).
+                  should == MetricFu::AVAILABLE_GRAPHS
         end
       end
 
@@ -264,7 +225,13 @@ describe MetricFu::Configuration do
 
     MetricFu::AVAILABLE_METRICS.each do |metric|
       it "should add a #{metric} class method to the MetricFu module " do
-        MetricFu.respond_to?(metric).should be_true
+        MetricFu.should respond_to(metric)
+      end
+    end
+    
+    MetricFu::AVAILABLE_GRAPHS.each do |graph|
+      it "should add a #{graph} class metrhod to the MetricFu module" do
+        MetricFu.should respond_to(graph)
       end
     end
   end
@@ -274,7 +241,7 @@ describe MetricFu::Configuration do
     before(:each) { get_new_config }
 
     it 'should return the value of the PLATFORM constant' do
-      this_platform = PLATFORM
+      this_platform = RUBY_PLATFORM
       @config.platform.should == this_platform
     end
   end

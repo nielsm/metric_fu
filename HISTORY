@@ -1,3 +1,44 @@
+=== Edge
+
+* Upgrade Bluff to 0.3.6
+* Add tooltips to graphs
+* Fix `activesupport` deprecation
+* Vendor Saikuro as a gem dependency
+
+=== MetricFu 1.2.0 / 2010-01-09
+
+* ftools isn't supported by 1.9 so moved to fileutils.
+* Overhauled the graphing to use Gruff or Google Charts so we no longer depend on ImageMagick/rmagick -- thanks to Carl Youngblood.
+* Stopped relying on Github gems as they will be going away.
+
+=== MetricFu 1.1.6 / 2009-12-14
+
+* Now compatible with Reek 1.2x thanks to Kevin Rutherford
+* Fixed problem with deleted files still showing up in Flog reports thanks to Dan Mayer
+
+=== MetricFu 1.1.5 / 2009-8-13
+
+* Previous Ruby 1.9 fix was not quite fix-y enough
+
+=== MetricFu 1.1.4 / 2009-7-13
+
+* Fixed another Ruby 1.9x bug
+
+=== MetricFu 1.1.3 / 2009-7-10
+
+* MetricFu is now Ruby 1.9x compatible
+* Removed the check for deprecated ways of configuring metric_fu as the tests were causing Ruby 1.9x problems and it's been forever since they were supported.
+* Removed total flog score from graph (which will always go up and so doesn't mean much) and replacing it with top_five_percent_average which is an average of the worst 5 percent of your methods.
+* Sort Flog by highest score in the class which I feel is more important than the total flog flog score.
+
+=== MetricFu 1.1.2 / 2009-7-09
+
+* Removed dependency on gruff and rmagick (unless the user wants graphs, of course).
+* New look for styling -- Edouard Brière
+* Extra param in rcov call was causing problems -- Stewart Welbourne
+* Preventing rake task from being run multiple times when other rake tasks switch the environment -- Matthew Van Horn
+* Typo in Rcov dependency verification and fixing parsing Saikuro nested information -- Mark Wilden
+
 === MetricFu 1.1.1 / 2009-6-29
 
 * Fix for empty flog files

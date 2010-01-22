@@ -9,6 +9,7 @@ module MetricFu
                        :roodi, :saikuro, :rcov]
 
   AVAILABLE_GRAPHS = [:flog, :flay, :reek, :roodi, :rcov]
+  AVAILABLE_GRAPH_ENGINES = [:gchart, :bluff]
 
   # The @@configuration class variable holds a global type configuration
   # object for any parts of the system to use.
@@ -51,7 +52,6 @@ module MetricFu
   class Configuration
 
     def initialize #:nodoc:#
-      warn_about_deprecated_config_options
       reset
       add_attr_accessors_to_self
       add_class_methods_to_metric_fu
@@ -82,25 +82,6 @@ module MetricFu
       end
     end
 
-    # Check if certain constants that are deprecated have been
-    # assigned.  If so, warn the user about them, and the 
-    # fact that they will have no effect.
-    def warn_about_deprecated_config_options
-      if defined?(::MetricFu::CHURN_OPTIONS)
-        raise("Use config.churn instead of MetricFu::CHURN_OPTIONS")
-      end
-      if defined?(::MetricFu::DIRECTORIES_TO_FLOG)
-        raise("Use config.flog[:dirs_to_flog] "+
-              "instead of MetricFu::DIRECTORIES_TO_FLOG") 
-      end
-      if defined?(::MetricFu::SAIKURO_OPTIONS)
-        raise("Use config.saikuro instead of MetricFu::SAIKURO_OPTIONS")
-      end
-      if defined?(SAIKURO_OPTIONS)
-        raise("Use config.saikuro instead of SAIKURO_OPTIONS")
-      end
-    end
-
     # This allows us to have a nice syntax like:
     #
     #   MetricFu.run do |config|
@@ -128,7 +109,8 @@ module MetricFu
       set_metrics
       set_graphs
       set_code_dirs
-      @flay     = { :dirs_to_flay => @code_dirs  } 
+      @flay     = { :dirs_to_flay => @code_dirs,
+                    :minimum_score => 100 } 
       @flog     = { :dirs_to_flog => @code_dirs  }
       @reek     = { :dirs_to_reek => @code_dirs  }
       @roodi    = { :dirs_to_roodi => @code_dirs }
@@ -141,7 +123,8 @@ module MetricFu
                     :formater => "text"}
       @churn    = {}
       @stats    = {}
-      @rcov     = { :test_files => ['test/**/*_test.rb', 
+      @rcov     = { :environment => 'test',
+                    :test_files => ['test/**/*_test.rb', 
                                     'spec/**/*_spec.rb'],
                     :rcov_opts => ["--sort coverage", 
                                    "--no-html", 
@@ -150,19 +133,10 @@ module MetricFu
                                    "--profile",
                                    "--rails",
                                    "--exclude /gems/,/Library/,/usr/,spec"]}
+
+      @file_globs_to_ignore = []
                                    
-      @graph_theme = { :colors => %w(orange purple green white red blue pink yellow),
-                       :marker_color => 'blue',
-                       :background_colors => %w(white white)}
-      
-      relative_font_path = [File.dirname(__FILE__), '..', '..', 'vendor', '_fonts', 'monaco.ttf']
-      @graph_font = File.expand_path(File.join(relative_font_path))
-      @graph_size = "1000x400"
-      @graph_title_font_size = 12
-      @graph_legend_box_size = 12
-      @graph_legend_font_size = 10
-      @graph_marker_font_size = 10
-      
+      @graph_engine = :bluff # can be :bluff or :gchart
     end
 
     # Perform a simple check to try and guess if we're running
@@ -197,7 +171,7 @@ module MetricFu
     end
     
     def platform #:nodoc:
-      return PLATFORM
+      return RUBY_PLATFORM
     end
     
     def is_cruise_control_rb?

@@ -1,4 +1,3 @@
-require 'generator'
 module MetricFu
   
   class Flay < Generator
@@ -10,7 +9,9 @@ module MetricFu
 
     def emit
       files_to_flay = MetricFu.flay[:dirs_to_flay].map{|dir| Dir[File.join(dir, "**/*.rb")] }
-      @output = `flay #{files_to_flay.join(" ")}`
+      files = remove_excluded_files(files_to_flay.flatten)
+      mimimum_score_parameter = MetricFu.flay[:minimum_score] ? "--mass #{MetricFu.flay[:minimum_score]} " : ""
+      @output = `flay #{mimimum_score_parameter}#{files.join(" ")}`
     end
 
     def analyze
