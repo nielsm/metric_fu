@@ -132,7 +132,8 @@ module MetricFu
     end
 
     def round_to_tenths(decimal)
-      (decimal * 10).round / 10.0 
+      decimal=0.0 if decimal.to_s.eql?('NaN')
+      (decimal.to_i * 10).round / 10.0 
     end
     
     # Allows subclasses to check for required gems
