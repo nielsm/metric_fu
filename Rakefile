@@ -1,3 +1,4 @@
+$LOAD_PATH << '.'
 require 'rake'
 require 'rake/rdoctask'
 require 'spec/rake/spectask'
@@ -9,7 +10,7 @@ Spec::Rake::SpecTask.new(:spec) do |t|
 end
  
 MetricFu::Configuration.run do |config|
-  config.template_class = AwesomeTemplate
+  config.roodi = config.roodi.merge(:roodi_config => 'config/roodi_config.yml')
 end
  
 task :default => :spec

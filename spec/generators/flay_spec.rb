@@ -1,18 +1,13 @@
 require File.expand_path(File.dirname(__FILE__) + "/../spec_helper")
 
 describe Flay do 
-  before :each do
-    MetricFu::Flay.stub!(:verify_dependencies!).and_return(true)
-  end
   describe "emit method" do
     it "should look at the dirs" do
-      MetricFu::Configuration.run {|config| config.flay = { :dirs_to_flay => ['app', 'lib']  } }
+      MetricFu::Configuration.run {|config| config.flay = { :dirs_to_flay => ['app', 'lib'], :filetypes => ['rb']  } }
       File.stub!(:directory?).and_return(true)
       @flay = MetricFu::Flay.new('base_dir')    
-    
-      Dir.should_receive(:[]).with(File.join("app", "**/*.rb")).and_return("path/to/app")
-      Dir.should_receive(:[]).with(File.join("lib", "**/*.rb")).and_return("path/to/lib")
-      @flay.should_receive(:`).with("flay path/to/app path/to/lib")
+
+      @flay.should_receive(:`).with("flay  app lib")
       output = @flay.emit
     end
     
@@ -21,7 +16,7 @@ describe Flay do
       File.stub!(:directory?).and_return(true)
       @flay = MetricFu::Flay.new('base_dir')
 
-      @flay.should_receive(:`).with("flay --mass 99 ")
+      @flay.should_receive(:`).with("flay --mass 99  ")
       output = @flay.emit
     end
   end

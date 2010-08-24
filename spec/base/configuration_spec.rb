@@ -87,7 +87,7 @@ describe MetricFu::Configuration do
 
     it 'should set @flay to {:dirs_to_flay => @code_dirs}' do
       @config.instance_variable_get(:@flay).
-              should == {:dirs_to_flay => ['lib'], :minimum_score => 100}
+              should == {:dirs_to_flay => ['lib'], :filetypes=>["rb"], :minimum_score => 100}
     end
     
     it 'should set @flog to {:dirs_to_flog => @code_dirs}' do
@@ -97,12 +97,12 @@ describe MetricFu::Configuration do
     
     it 'should set @reek to {:dirs_to_reek => @code_dirs}' do
       @config.instance_variable_get(:@reek).
-              should == {:dirs_to_reek => ['lib']}
+              should == {:config_file_pattern=>nil, :dirs_to_reek => ['lib']}
     end
 
     it 'should set @roodi to {:dirs_to_roodi => @code_dirs}' do
       @config.instance_variable_get(:@roodi).
-              should == {:dirs_to_roodi => ['lib']}
+              should == {:roodi_config=>nil, :dirs_to_roodi => ['lib']}
     end
    
     it 'should set @churn to {}' do
@@ -112,6 +112,11 @@ describe MetricFu::Configuration do
 
     it 'should set @stats to {}' do
       @config.instance_variable_get(:@stats).
+              should == {}
+    end
+
+    it 'should set @rails_best_practices to {}' do
+      @config.instance_variable_get(:@rails_best_practices).
               should == {}
     end
 
@@ -134,7 +139,8 @@ describe MetricFu::Configuration do
                                          "--no-color",
                                          "--profile",
                                          "--rails",
-                                         "--exclude /gems/,/Library/,/usr/,spec"]}
+                                         "--exclude /gems/,/Library/,/usr/,spec"],
+                          :external => nil}
     end
 
     it 'should set @saikuro to { :output_directory => @scratch_directory + "/saikuro",

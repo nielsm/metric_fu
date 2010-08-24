@@ -8,7 +8,7 @@ module MetricFu
   AVAILABLE_METRICS = [:churn, :flog, :flay, :reek, 
                        :roodi, :saikuro, :rcov]
 
-  AVAILABLE_GRAPHS = [:flog, :flay, :reek, :roodi, :rcov]
+  AVAILABLE_GRAPHS = [:flog, :flay, :reek, :roodi, :rcov, :rails_best_practices]
   AVAILABLE_GRAPH_ENGINES = [:gchart, :bluff]
 
   # The @@configuration class variable holds a global type configuration
@@ -110,10 +110,13 @@ module MetricFu
       set_graphs
       set_code_dirs
       @flay     = { :dirs_to_flay => @code_dirs,
-                    :minimum_score => 100 } 
+                    :minimum_score => 100,
+                    :filetypes => ['rb'] } 
       @flog     = { :dirs_to_flog => @code_dirs  }
-      @reek     = { :dirs_to_reek => @code_dirs  }
-      @roodi    = { :dirs_to_roodi => @code_dirs }
+      @reek     = { :dirs_to_reek => @code_dirs,
+                    :config_file_pattern => nil}
+      @roodi    = { :dirs_to_roodi => @code_dirs,
+                    :roodi_config => nil}
       @saikuro  = { :output_directory => @scratch_directory + '/saikuro', 
                     :input_directory => @code_dirs,
                     :cyclo => "",
@@ -132,8 +135,10 @@ module MetricFu
                                    "--no-color",
                                    "--profile",
                                    "--rails",
-                                   "--exclude /gems/,/Library/,/usr/,spec"]}
-
+                                   "--exclude /gems/,/Library/,/usr/,spec"],
+                    :external => nil
+                  }
+      @rails_best_practices = {}
       @file_globs_to_ignore = []
                                    
       @graph_engine = :bluff # can be :bluff or :gchart
@@ -151,14 +156,18 @@ module MetricFu
     # running within rails.
     def set_metrics
       if rails?
-        @metrics = MetricFu::AVAILABLE_METRICS + [:stats]
+        @metrics = MetricFu::AVAILABLE_METRICS + [:stats, :rails_best_practices]
       else
         @metrics = MetricFu::AVAILABLE_METRICS
       end 
     end
     
     def set_graphs
-      @graphs = MetricFu::AVAILABLE_GRAPHS 
+      if rails?
+        @graphs = MetricFu::AVAILABLE_GRAPHS + [:stats]
+      else
+        @graphs = MetricFu::AVAILABLE_GRAPHS 
+      end
     end
 
     # Add the 'app' directory if we're running within rails.
