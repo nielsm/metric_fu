@@ -132,7 +132,7 @@ module MetricFu
 
     def round_to_tenths(decimal)
       decimal = 0.0 if decimal.to_s.eql?('NaN')
-      (decimal * 10).round / 10.0  
+      (decimal * 10).round / 10.0 
     end
 
     def emit #:nodoc:
